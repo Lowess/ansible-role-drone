@@ -23,7 +23,6 @@
   unarchive:
     src: "https://github.com/drone/drone-cli/releases/download/v{{ drone_cli_version }}/drone_linux_amd64.tar.gz"
     dest: /usr/local/bin/
-    remote_src: yes
     copy: no
     owner: root
     group: root
@@ -31,10 +30,10 @@
 
 # Specific steps based on the type of Drone service to run
 
-- include: drone-server.yml
+- import_tasks: drone-server.yml
   tags: configure
   when: drone_role in ['all', 'server']
 
-- include: drone-agent.yml
+- import_tasks: drone-agent.yml
   tags: configure
   when: drone_role in ['all', 'agent']
