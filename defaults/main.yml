@@ -61,12 +61,10 @@ drone_server_default_environment:
   DRONE_SECRET: "{{ drone_secret }}"
   DRONE_ADMIN: "{{ drone_admins | join(',') }}"
 
-drone_server_environment: >
-  (drone_oauth_type == 'github') | ternary(
-    drone_server_default_environment | combine(drone_server_github_environment)
+drone_server_environment: "{{ (drone_oauth_type == 'github') | ternary(
+    drone_server_default_environment | combine(drone_server_github_environment),
     drone_server_default_environment | combine(drone_server_bitbucket_environment)
-  )
-
+  ) }}"
 
 drone_agent_environment:
   DRONE_SERVER: "{{ drone_host }}:9000"
