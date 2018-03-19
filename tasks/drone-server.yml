@@ -5,7 +5,7 @@
   docker_service:
     state: present
     restarted: "{{ drone_restart }}"
-    project_name: drone-server
+    project_name: drone
 
     definition:
       version: '2'
