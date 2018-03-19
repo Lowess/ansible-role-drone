@@ -58,7 +58,7 @@ drone_server_github_environment:
 drone_server_default_environment:
   # General drone settings
   DRONE_OPEN: 'true'
-  DRONE_HOST: "{{ drone_https_enabled | ternary('https', 'http')://{{ drone_host }}"
+  DRONE_HOST: "{{ drone_https_enabled | ternary('https', 'http') }}://{{ drone_host }}"
   DRONE_LETS_ENCRYPT: "{{ drone_https_enabled | ternary('true', 'false') }}"
   DRONE_SECRET: "{{ drone_secret }}"
   DRONE_ADMIN: "{{ drone_admins | join(',') }}"
