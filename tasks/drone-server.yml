@@ -20,6 +20,7 @@
             - "{{ drone_data_volume }}:/var/lib/drone/"
           restart: always
           environment: "{{ drone_server_environment }}"
+          network_mode: "{{ drone_network_mode | default('bridge') }}"
 
 # The Block is entered only when DRONE_OPEN=false
 - block:
