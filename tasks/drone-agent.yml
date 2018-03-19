@@ -1,0 +1,21 @@
+---
+# tasks file for ansible-role-drone - agent
+
+- name: Setup Drone Agents
+  docker_service:
+    state: present
+    restarted: "{{ drone_restart }}"
+    project_name: drone-agent
+    scale:
+      drone-agent: "{{ drone_agent_scale }}"
+
+    definition:
+      version: '2'
+      services:
+        drone-agent:
+          image: "drone/agent:{{ drone_version }}"
+          command: agent
+          restart: always
+          volumes:
+            - /var/run/docker.sock:/var/run/docker.sock
+          environment: "{{ drone_agent_environment }}"

@@ -1,0 +1,40 @@
+---
+# tasks file for ansible-role-drone
+
+- name: Install Drone requirements
+  pip:
+    state: present
+    name: "{{ item.name }}"
+    version: "{{ item.version }}"
+  with_items: "{{ drone_pip_packages }}"
+
+- name: Create the Drone folders
+  file:
+    path: "{{ item }}"
+    state: directory
+    owner: "{{ drone_user }}"
+    group: "{{ drone_group }}"
+    mode: 0775
+  with_items:
+    - "{{ drone_root_folder }}"
+    - "{{ drone_data_volume }}"
+
+- name: Install the Drone CLI
+  unarchive:
+    src: "https://github.com/drone/drone-cli/releases/download/v{{ drone_cli_version }}/drone_linux_amd64.tar.gz"
+    dest: /usr/local/bin/
+    remote_src: yes
+    copy: no
+    owner: root
+    group: root
+    mode: '0744'
+
+# Specific steps based on the type of Drone service to run
+
+- include: drone-server.yml
+  tags: configure
+  when: drone_role in ['all', 'server']
+
+- include: drone-agent.yml
+  tags: configure
+  when: drone_role in ['all', 'agent']

@@ -1,0 +1,88 @@
+---
+# defaults file for ansible-role-drone
+
+########################################################################################################################
+# Section that you will override
+########################################################################################################################
+
+# Pick one from 'bitbucket' or 'github'
+drone_oauth_type: github
+
+# Github or Bitbucket OAuth client and secret
+drone_oauth_client: "..."
+drone_oauth_secret: "..."
+drone_secret: "#Ins3cur3!"
+
+# You will need to provide the Drone command line tools with your personal access token.
+# You can retrieve a Drone personal access token from your user profile screen.
+# Click the show token button: http://docs.drone.io/cli-authentication/
+# Ansible will prompt for the Token value if undefined, you can also override the `drone_cli_token`
+# value in the proper group_vars vault.yaml if you do not want to be prompted
+drone_cli_token: !!null
+
+# Drone role can be one of ['server', 'agent', 'all'] if `all` is selected, the EC2 server will run both services
+drone_role: all
+
+drone_restart: yes
+
+drone_host: "{{ ansible_eth0.ipv4.address }}"
+
+drone_agent_scale: 3
+
+drone_version: 0.8.4
+drone_cli_version: 0.8.3
+
+# Names listed here are refering to Bitbucket handle
+# Admins do not have to be part of `drone_users`
+drone_admins: []
+
+# Names listed here are refering to Bitbucket handle
+drone_users: []
+
+########################################################################################################################
+### Section that you wont probably override
+########################################################################################################################
+
+drone_server_bitbucket_environment:
+  DRONE_BITBUCKET: 'true'
+  DRONE_BITBUCKET_CLIENT: "{{ drone_oauth_client }}"
+  DRONE_BITBUCKET_SECRET: "{{ drone_oauth_secret }}"
+
+drone_server_github_environment:
+  DRONE_GITHUB: 'true'
+  DRONE_GITHUB_CLIENT: "{{ drone_oauth_client }}"
+  DRONE_GITHUB_SECRET: "{{ drone_oauth_secret }}"
+
+drone_server_default_environment:
+  # General drone settings
+  DRONE_OPEN: 'true'
+  DRONE_HOST: "https://{{ drone_host }}"
+  DRONE_LETS_ENCRYPT: 'true'
+  DRONE_SECRET: "{{ drone_secret }}"
+  DRONE_ADMIN: "{{ drone_admins | join(',') }}"
+
+drone_server_environment: >
+  (drone_oauth_type == 'github') | ternary(
+    drone_server_default_environment | combine(drone_server_github_environment)
+    drone_server_default_environment | combine(drone_server_bitbucket_environment)
+  )
+
+
+drone_agent_environment:
+  DRONE_SERVER: "{{ drone_host }}:9000"
+  DRONE_SECRET: "{{ drone_secret }}"
+
+drone_user: root
+drone_group: root
+
+drone_root_folder: /opt/drone
+drone_data_volume: "{{ drone_root_folder }}/db"
+
+# Be careful with deps it breaks easily:
+# https://github.com/docker/compose/issues/4401
+drone_pip_packages:
+  - name: docker-compose
+    version: "1.9.0"
+
+  - name: pyYAML
+    version: "3.12"

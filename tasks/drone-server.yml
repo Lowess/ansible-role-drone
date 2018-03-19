@@ -1,0 +1,69 @@
+---
+# tasks file for ansible-role-drone - server
+
+- name: Setup Drone Server
+  docker_service:
+    state: present
+    restarted: "{{ drone_restart }}"
+    project_name: drone-server
+
+    definition:
+      version: '2'
+      services:
+        drone-server:
+          image: "drone/drone:{{ drone_version }}"
+          ports:
+            - 80:80
+            - 443:443
+            - 9000:9000
+          volumes:
+            - "{{ drone_data_volume }}:/var/lib/drone/"
+          restart: always
+          environment: "{{ drone_server_environment }}"
+
+# The Block is entered only when DRONE_OPEN=false
+- block:
+    # The Block is entered only when the drone_cli_token is not provided
+    - block:
+
+        - name: Prompt for the Drone CLI Personal Token
+          pause:
+            prompt: "Please enter your Drone CLI Personal Token"
+          register: __drone_cli_token
+
+        - name: Set the Drone CLI Personal Token
+          set_fact:
+            drone_cli_token: "{{ __drone_cli_token.user_input }}"
+          no_log: true
+
+      when: drone_cli_token is none
+
+    - name: Get the list of Drone users
+      shell: >
+        drone user ls
+      environment:
+        DRONE_TOKEN: "{{ drone_cli_token }}"
+        DRONE_SERVER: "http://{{ drone_host }}"
+      register: __drone_users
+
+    - name: Show the current user list
+      debug:
+        msg: "{{ __drone_users.stdout_lines }}"
+        verbosity: 2
+
+    - name: Add newly added Drone users
+      shell: >
+        drone user add {{ item }}
+      environment:
+        DRONE_TOKEN: "{{ drone_cli_token }}"
+        DRONE_SERVER: "http://{{ drone_host }}"
+      with_items: "{{ drone_users | difference(__drone_users.stdout_lines) }}"
+
+    - name: Remove deleted Drone users
+      shell: >
+        drone user rm {{ item }}
+      environment:
+        DRONE_TOKEN: "{{ drone_cli_token }}"
+        DRONE_SERVER: "http://{{ drone_host }}"
+      with_items: "{{ __drone_users.stdout_lines | difference(drone_users | union(drone_admins)) }}"
+  when: not drone_server_environment.DRONE_OPEN | bool
