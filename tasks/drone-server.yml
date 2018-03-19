@@ -67,5 +67,5 @@
         DRONE_SERVER: "http://{{ drone_host }}"
       with_items: "{{ __drone_users.stdout_lines | difference(drone_users | union(drone_admins)) }}"
   when:
-    - __drone_users | length > 0
+    - drone_users | length > 0
     - not drone_server_environment.DRONE_OPEN | bool
