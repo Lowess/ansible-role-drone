@@ -54,6 +54,7 @@ drone_server_github_environment:
   DRONE_GITHUB: 'true'
   DRONE_GITHUB_CLIENT: "{{ drone_oauth_client }}"
   DRONE_GITHUB_SECRET: "{{ drone_oauth_secret }}"
+  DRONE_GITHUB_SCOPE: repo,repo:status,user:email,read:org
 
 drone_server_default_environment:
   # General drone settings
