@@ -66,4 +66,6 @@
         DRONE_TOKEN: "{{ drone_cli_token }}"
         DRONE_SERVER: "http://{{ drone_host }}"
       with_items: "{{ __drone_users.stdout_lines | difference(drone_users | union(drone_admins)) }}"
-  when: not drone_server_environment.DRONE_OPEN | bool
+  when:
+    - __drone_users | length > 0
+    - not drone_server_environment.DRONE_OPEN | bool
