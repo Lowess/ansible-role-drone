@@ -70,7 +70,7 @@ drone_server_environment: "{{ (drone_oauth_type == 'github') | ternary(
   ) }}"
 
 drone_agent_environment:
-  DRONE_SERVER: "{{ drone_role == 'all' | ternary('drone-server', drone_host) }}:9000"
+  DRONE_SERVER: "{{ (drone_role == 'all') | ternary('drone-server', drone_host) }}:9000"
   DRONE_SECRET: "{{ drone_secret }}"
 
 drone_user: root
