@@ -19,4 +19,4 @@
           volumes:
             - /var/run/docker.sock:/var/run/docker.sock
           environment: "{{ drone_agent_environment }}"
-          links: "{{ drone_role == 'all' | ternary(['drone-server'], []) }}"
+          links: ["{{ drone_role == 'all' | ternary('drone-server', omit) }}"]
