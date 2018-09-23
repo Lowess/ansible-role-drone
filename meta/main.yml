@@ -3,14 +3,20 @@ dependencies: []
 
 galaxy_info:
   author: Lowess
-  description: Drone installation for Linux
-  company: "Florian Dambrine"
-  license: license (GPLv2, CC-BY, etc)
-  min_ansible_version: 2.4
+  role_name: drone
+  description: "Install and configure Drone CI/CD"
+
+  company: "GrandsEnsemble Florian DAMBRINE"
+  license: BSD
+
+  min_ansible_version: 2.0
+
   platforms:
     - name: Ubuntu
       versions:
-        - trusty
+        - xenial
+
   galaxy_tags:
-    - devops-360
+    - devops360
     - drone
+    - ci
